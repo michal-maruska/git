@@ -2545,7 +2545,7 @@ proc makewindow {} {
     set entries $sha1entry
 
 
-    set sha1but  ${tf}.bar.sha1label
+    set sha1but ${tf}.bar.sha1label
     ttk::button $sha1but -text "[mc "Commit ID:"] " -state disabled \
         -command gotocommit -width 8
 
