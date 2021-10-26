@@ -2820,9 +2820,11 @@ proc makewindow {} {
     }
 
     if ($original_layout) {
+            ttk::frame .narrow -height $geometry(topheight) \
+                -width [ expr {int($geometry(topwidth) / 2)} ]
 
+            pack ${tfpath} -in .narrow -side top
         .ctop add ${tfpath}
-        .ctop add .narrow
     } else {
         .ctop add ${tfpath}
     }
