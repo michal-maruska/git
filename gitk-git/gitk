@@ -2154,6 +2154,8 @@ proc removehead {id name} {
 proc ttk_toplevel {w args} {
     eval [linsert $args 0 ::toplevel $w]
     place [ttk::frame $w._toplevel_background] -x 0 -y 0 -relwidth 1 -relheight 1
+    puts "set scrollbar color"
+    ttk::style configure TScrollbar -background blue
     return $w
 }
 
@@ -2257,6 +2259,17 @@ proc setttkstyle {} {
     if {[catch {ttk::style theme use $theme} err]} {
         set theme [ttk::style theme use]
     }
+
+    puts "set scrollbar color"
+    ttk::style configure TScrollbar -background blue
+    # ttk::style configure TScrollbar -troughcolor color
+    #ttk::style configure TScrollbar -arrowcolor color
+    #ttk::style configure TScrollbar -bordercolor color
+    #ttk::style configure TScrollbar -darkcolor color
+    #ttk::style configure TScrollbar -lightcolor color
+    #ttk::style configure TScrollbar -sliderrelief relief
+    ttk::style map TScrollbar -background [list active blue disabled blue]
+    # blue blue blue blue
 }
 
 # Make a menu and submenus.
