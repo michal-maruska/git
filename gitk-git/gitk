@@ -2498,34 +2498,76 @@ proc create_history_pane {} {
     }
 
     # the upper half will have a paned window, a scroll bar to the right, and some stuff below
-    ttk::frame  ${tf} -height $geometry(topheight) -width $geometry(topwidth)
+    # mmc: this seems to have no effect?
+    if ($original_layout) {
+        ttk::frame  ${tf} -height $geometry(topheight) -width $geometry(topwidth)
+    } else {
+        # Instead of taking over the whole top half, we take narrow:
+        ttk::frame  ${tf} -height $geometry(topheight) -width [ expr {int($geometry(topwidth) / 2)} ]
+    }
+
+    # so we created a frame
+    # now another one??
     ttk::frame  ${tf}.histframe
+    # pwc list .... canv canv2 canv3
+
+    # this is like treeview!  `sash' is divisors?
     ttk::panedwindow  ${tf}.histframe.pwclist -orient horizontal
 
     # create three canvases
     set cscroll ${tf}.histframe.csb
+
+# mmc: I want to persist the widths here!
     set canv ${tf}.histframe.pwclist.canv
+
     canvas $canv \
         -selectbackground $selectbgcolor \
         -background $bgcolor -bd 0 \
         -xscrollincr $linespc \
         -yscrollincr $linespc -yscrollcommand "scrollcanv $cscroll"
     ${tf}.histframe.pwclist add $canv
+
     set canv2 ${tf}.histframe.pwclist.canv2
     canvas $canv2 \
         -selectbackground $selectbgcolor \
         -background $bgcolor -bd 0 -yscrollincr $linespc
     ${tf}.histframe.pwclist add $canv2
+
     set canv3 ${tf}.histframe.pwclist.canv3
     canvas $canv3 \
         -selectbackground $selectbgcolor \
         -background $bgcolor -bd 0 -yscrollincr $linespc
-    ${tf}.histframe.pwclist add $canv3
+
+    if ($original_layout) {
+        ${tf}.histframe.pwclist add $canv3
+    } else {
+        ${tf}.histframe.pwclist add $canv3
+        # -weight 2
+        ## Why weight 2?
+    }
+
     bind ${tf}.histframe.pwclist <Map> {
         bind %W <Map> {}
-        ## mmc:
-        ${tfpath}.histframe.pwclist sashpos 1 [lindex $::geometry(pwsash1) 0]
-        ${tfpath}.histframe.pwclist sashpos 0 [lindex $::geometry(pwsash0) 0]
+        if ($original_layout) {
+            ${tfpath}.histframe.pwclist sashpos 1 [lindex $::geometry(pwsash1) 0]
+            ${tfpath}.histframe.pwclist sashpos 0 [lindex $::geometry(pwsash0) 0]
+
+        } else {
+            puts "changed sash?"
+
+            # mmc: this is a callback! it must have its variables.
+            # so what is this?
+            set offset1 [lindex $::geometry(pwsash1) 0]
+            set offset0 [lindex $::geometry(pwsash0) 0]
+
+            puts [format "now applying! %%d %%d"  ${offset0} ${offset1}  ]
+            # [lindex $::geometry(pwsash0) 0]
+
+            #set geometry(pwsash0) [list [expr {40 * $charspc}] 2]
+            #set geometry(pwsash1) [list [expr {60 * $charspc}] 2]
+
+            # [winfo width ${tfpath}] 500
+        }
     }
 
     # a scroll bar to rule them
@@ -2549,6 +2591,7 @@ proc create_history_pane {} {
 
     ttk::button ${tf}.bar.leftbut -command goback -state disabled
     ${tf}.bar.leftbut configure -text \u2190 -width 3
+
     pack ${tf}.bar.leftbut -side left -fill y
     ttk::button ${tf}.bar.rightbut -command goforw -state disabled
     ${tf}.bar.rightbut configure -text \u2192 -width 3
@@ -2787,6 +2830,11 @@ proc makewindow {} {
 
     # the gui has upper and lower half, parts of a paned window.
 
+    # .ctop is container
+    # either we have  Hist|A|D | Diff |File
+    # or  Histo|A|D
+    #     -------
+    #     Diff | File
     if ($original_layout) {
         ttk::panedwindow .ctop -orient vertical
     } else {
@@ -2798,6 +2846,7 @@ proc makewindow {} {
 
     # Finish putting the upper half of the viewer together
     if ($original_layout) {
+        # fixme: this is NOT `maruska' layout!
         .ctop add ${tfpath}
 
     }
@@ -2860,12 +2909,30 @@ proc makewindow {} {
     $ctext tag lower dresult
     $ctext tag lower d0
 
-    .pwbottom add .bleft
+    # .narrow add .bleft
+    # mmc:
+    if ($original_layout) {
+        pack .bleft -in .narrow -side bottom -fill y
+        # mmc: I think .bleft is the DIFF window.
+        .pwbottom add .bleft
+    } else {
+        # Add the file-list column
+        # if [expr {! $original_layout}]
+        .pwbottom add .bleft
+    }
 
+    # .bright is the file-list (of the commit)
     create_file_list .file_list
 
-    .pwbottom add .file_list
-    .ctop add .pwbottom
+    if [expr {! $original_layout}] {
+        .pwbottom add .file_list
+    #mmc:
+        .ctop add .pwbottom
+    } else {
+        .pwbottom add .file_list
+        .ctop add .pwbottom
+        #.ctop add .bleft
+    }
 
     # restore window position if known
     if {[info exists geometry(main)]} {
@@ -2890,7 +2957,9 @@ proc makewindow {} {
     }
     bind .pwbottom <Map> {
         bind %W <Map> {}
-        %W sashpos 0 $::geometry(botwidth)
+        if ($original_layout) {
+            %W sashpos 0 $::geometry(botwidth)
+        }
     }
     bind .pwbottom <Configure> {resizecdetpanes %W %w}
 
@@ -3296,6 +3365,12 @@ proc resizeclistpanes {win w} {
 }
 
 proc resizecdetpanes {win w} {
+    global original_layout
+    if [expr {! $original_layout}] {
+        puts "resizecdetpanes (the bottom reconfigured)"
+        return
+    }
+
     global oldwidth oldsash
     if {[info exists oldwidth($win)]} {
         if {[info exists oldsash($win)]} {
