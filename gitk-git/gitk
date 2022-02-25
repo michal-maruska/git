@@ -3377,6 +3377,7 @@ proc savestuff {w} {
 }
 
 proc resizeclistpanes {win w} {
+    # mmc: what is `oldwidth' ?
     global oldwidth oldsash
     puts "resizeclistpanes"
     if {[info exists oldwidth($win)]} {
