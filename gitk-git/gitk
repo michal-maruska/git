@@ -2849,7 +2849,12 @@ proc makewindow {} {
     # mmc: bright & bleft.
 
     # now build up the bottom
-    ttk::panedwindow .commitWidget -orient horizontal
+
+    if ($original_layout) {
+        ttk::panedwindow .commitWidget -orient horizontal
+    } else {
+        ttk::panedwindow .commitWidget -orient vertical
+    }
 
     create_diff_pane
 
