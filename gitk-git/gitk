@@ -2454,6 +2454,7 @@ proc create_history_pane {} {
     # consulted:
     # mmc: in new version this is dropped.
     global original_layout
+    global be_verbose
 
     set tf $tfpath
 
@@ -2534,7 +2535,9 @@ proc create_history_pane {} {
             ${tfpath}.histframe.pwclist sashpos 1 [lindex $::geometry(pwsash1) 0]
             ${tfpath}.histframe.pwclist sashpos 0 [lindex $::geometry(pwsash0) 0]
         } else {
-            puts "The history is mapped: allocating widths/offsets:"
+            if {$be_verbose} {
+                    puts "The history is mapped: allocating widths/offsets:"
+            }
 
             # mmc: this is a callback! it must have its variables.
             # so what is this?
@@ -2545,7 +2548,9 @@ proc create_history_pane {} {
             ${tfpath}.histframe.pwclist sashpos 1 $offset1
             ${tfpath}.histframe.pwclist sashpos 0 $offset0
 
-            puts [format "now would apply %%d %%d"  ${offset0} ${offset1}  ]
+            if {$be_verbose} {
+                puts [format "now would apply %%d %%d"  ${offset0} ${offset1}  ]
+            }
             # [lindex $::geometry(pwsash0) 0]
 
             #set geometry(pwsash0) [list [expr {40 * $charspc}] 2]
@@ -13277,7 +13282,7 @@ set nullfile "/dev/null"
 
 setttkstyle
 set appname "gitk"
-
+set be_verbose 0
 set runq {}
 set history {}
 set historyindex 0
