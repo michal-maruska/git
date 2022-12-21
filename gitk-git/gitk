@@ -2557,9 +2557,9 @@ proc create_history_pane {} {
 
     bind ${tf}.histframe.pwclist <Map> {
         # mmc: inline callback! when mapped!
-        bind %W <Map> {
-            puts "bound inside the history widget"
-        }
+        # bind %W <Map> {
+        #    puts "bound inside the history widget"
+        # }
 
         if ($original_layout) {
             # position of column ?
