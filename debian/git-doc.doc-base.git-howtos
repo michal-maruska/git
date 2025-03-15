@@ -6,9 +6,9 @@ Abstract: Mailing list postings made by various people
 Section: File Management
 
 Format: Text
-Index: /usr/share/doc/git-doc/howto-index.txt
-Files: /usr/share/doc/git-doc/howto-index.txt
- /usr/share/doc/git-doc/howto/*.txt
+Index: /usr/share/doc/git-doc/howto-index.adoc
+Files: /usr/share/doc/git-doc/howto-index.adoc
+ /usr/share/doc/git-doc/howto/*.adoc
 
 Format: HTML
 Index: /usr/share/doc/git-doc/howto-index.html

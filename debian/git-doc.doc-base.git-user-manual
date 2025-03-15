@@ -9,7 +9,7 @@ Abstract: This manual provides a leisurely but practical
 Section: File Management
 
 Format: Text
-Files: /usr/share/doc/git-doc/user-manual.txt
+Files: /usr/share/doc/git-doc/user-manual.adoc
 
 Format: HTML
 Index: /usr/share/doc/git-doc/user-manual.html

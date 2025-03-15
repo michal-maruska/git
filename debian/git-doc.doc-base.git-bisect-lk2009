@@ -12,7 +12,7 @@ Abstract: "git bisect" enables software users and developers
 Section: File Management
 
 Format: Text
-Files: /usr/share/doc/git-doc/git-bisect-lk2009.txt
+Files: /usr/share/doc/git-doc/git-bisect-lk2009.adoc
 
 Format: HTML
 Index: /usr/share/doc/git-doc/git-bisect-lk2009.html

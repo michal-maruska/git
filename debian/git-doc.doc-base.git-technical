@@ -6,8 +6,8 @@ Abstract: Git has grown a set of internal API over time.
 Section: Programming/C
 
 Format: Text
-Index: /usr/share/doc/git-doc/technical/api-index.txt
-Files: /usr/share/doc/git-doc/technical/api-*.txt
+Index: /usr/share/doc/git-doc/technical/api-index.adoc
+Files: /usr/share/doc/git-doc/technical/api-*.adoc
 
 Format: HTML
 Index: /usr/share/doc/git-doc/technical/api-index.html

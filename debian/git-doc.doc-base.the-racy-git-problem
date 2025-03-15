@@ -16,4 +16,4 @@ Abstract: In order to speed up comparison between files in
 Section: File Management
 
 Format: Text
-Files: /usr/share/doc/git-doc/technical/racy-git.txt
+Files: /usr/share/doc/git-doc/technical/racy-git.adoc

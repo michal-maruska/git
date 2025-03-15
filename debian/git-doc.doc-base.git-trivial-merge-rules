@@ -6,4 +6,4 @@ Abstract: This document describes the outcomes of the
 Section: File Management
 
 Format: Text
-Files: /usr/share/doc/git-doc/technical/trivial-merge.txt
+Files: /usr/share/doc/git-doc/technical/trivial-merge.adoc

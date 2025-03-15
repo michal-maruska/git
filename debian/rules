@@ -128,7 +128,7 @@ override_dh_auto_install-indep:
 	  2>/dev/null
 	test -z '$(DOCS)' || \
 	  DESTDIR='$(TMP)' $(MAKE) -Ccontrib/subtree install-doc $(OPTS)
-	install -m 0644 contrib/subtree/git-subtree.txt '$(TMP)'/html
+	install -m 0644 contrib/subtree/git-subtree.adoc '$(TMP)'/html
 	# RelNotes are shipped in git
 	rm -rf '$(TMP)'/html/RelNotes
 	# don't include git-p4 man page
@@ -167,4 +167,4 @@ override_dh_installchangelogs:
 	dh_installchangelogs debian/changelog.upstream
 
 override_dh_compress:
-	dh_compress -X.txt -Xcontrib
+	dh_compress -X.adoc -Xcontrib

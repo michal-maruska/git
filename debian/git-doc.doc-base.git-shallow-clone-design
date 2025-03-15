@@ -9,4 +9,4 @@ Abstract: There has not been any work on the git fetch/clone
 Section: File Management
 
 Format: Text
-Files: /usr/share/doc/git-doc/technical/shallow.txt
+Files: /usr/share/doc/git-doc/technical/shallow.adoc
