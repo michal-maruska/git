@@ -1,11 +1,13 @@
-git (1:2.49.0-0.1) unstable; urgency=low
+git (1:2.49.0-1) unstable; urgency=low
 
   * new upstream release (see RelNotes/2.48.0.adoc, RelNotes/2.49.0.adoc).
   * update debian/copyright.
-  * debian/rules: adjust for asciidoc files using .adoc suffix
-  * debian/git-doc.doc-base.*: adjust for .txt -> .adoc renames.
+  * debian/rules: adjust for asciidoc files using .adoc suffix.
+  * debian/control: Standards-Version: 4.7.0.
+  * debian/git-doc.doc-base.*: remove, as these metadata were not
+    frequently used and were out of date.
 
- -- Jonathan Nieder <jrnieder@gmail.com>  Sat, 15 Mar 2025 18:39:54 +0100
+ -- Jonathan Nieder <jrnieder@gmail.com>  Sat, 15 Mar 2025 18:48:53 +0100
 
 git (1:2.47.2-0.1) unstable; urgency=medium
 
