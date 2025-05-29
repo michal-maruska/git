@@ -1,3 +1,12 @@
+git (1:2.49.0-1.1) unstable; urgency=low
+
+  * debian/patches/0001-parse-options-...diff: new; use correct
+    type for writing size_t flags, avoiding errors on big-endian
+    64-bit platforms (thx Matthias Klose, Bastian Blank, and
+    Pranav P; closes: #1102106).
+
+ -- Jonathan Nieder <jrnieder@gmail.com>  Thu, 29 May 2025 17:28:55 +0200
+
 git (1:2.49.0-1) unstable; urgency=low
 
   * new upstream release (see RelNotes/2.48.0.adoc, RelNotes/2.49.0.adoc).
