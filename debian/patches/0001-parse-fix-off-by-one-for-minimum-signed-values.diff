@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Patrick Steinhardt <ps@pks.im>
+Date: Thu, 17 Apr 2025 12:49:36 +0200
+Subject: parse: fix off-by-one for minimum signed values
+
+commit 8f282bdff0b49744b45d619075b59a5e8b596613 upstream.
+
+We accept a maximum value in `git_parse_signed()` that restricts the
+range of accepted integers. As the intent is to pass `INT*_MAX` values
+here, this maximum doesn't only act as the upper bound, but also as the
+implicit lower bound of the accepted range.
+
+This lower bound is calculated by negating the maximum. But given that
+the maximum value of a signed integer with N bits is `2^(N-1)-1` whereas
+the minimum value is `-2^(N-1)` we have an off-by-one error in the lower
+bound.
+
+Fix this off-by-one error by using `-max - 1` as lower bound instead.
+
+Signed-off-by: Patrick Steinhardt <ps@pks.im>
+Signed-off-by: Junio C Hamano <gitster@pobox.com>
+Signed-off-by: Jonathan Nieder <jrnieder@gmail.com>
+---
+ parse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/parse.c b/parse.c
+index 7a60a4f816c..3c47448ca67 100644
+--- a/parse.c
++++ b/parse.c
+@@ -38,7 +38,7 @@ int git_parse_signed(const char *value, intmax_t *ret, intmax_t max)
+ 			errno = EINVAL;
+ 			return 0;
+ 		}
+-		if ((val < 0 && -max / factor > val) ||
++		if ((val < 0 && (-max - 1) / factor > val) ||
+ 		    (val > 0 && max / factor < val)) {
+ 			errno = ERANGE;
+ 			return 0;

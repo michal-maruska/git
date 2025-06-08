@@ -1,1 +1,7 @@
-0001-parse-options-detect-mismatches-in-integer-signedness.diff
+0001-parse-fix-off-by-one-for-minimum-signed-values.diff
+0002-global-use-designated-initializers-for-options.diff
+0003-parse-options-support-unit-factors-in-OPT_INTEGER.diff
+0004-parse-options-rename-OPT_MAGNITUDE-to-OPT_UNSIGNED.diff
+0005-parse-options-introduce-precision-handling-for-OPTION.diff
+0006-parse-options-introduce-precision-handling-for-OPTION.diff
+0007-parse-options-detect-mismatches-in-integer-signedness.diff

@@ -43,7 +43,6 @@ Helped-by: SZEDER Gábor <szeder.dev@gmail.com>
 Helped-by: Jeff King <peff@peff.net>
 Signed-off-by: Patrick Steinhardt <ps@pks.im>
 Signed-off-by: Junio C Hamano <gitster@pobox.com>
-[jn: backport by using OPT_MAGNITUDE instead of OPT_UNSIGNED]
 Signed-off-by: Jonathan Nieder <jrnieder@gmail.com>
 ---
  apply.c            | 4 ++--
@@ -55,7 +54,7 @@ Signed-off-by: Jonathan Nieder <jrnieder@gmail.com>
  6 files changed, 16 insertions(+), 9 deletions(-)
 
 diff --git a/apply.c b/apply.c
-index f274a379487..954c5749233 100644
+index f274a379487..a850c7d75fe 100644
 --- a/apply.c
 +++ b/apply.c
 @@ -5123,8 +5123,8 @@ int apply_parse_options(int argc, const char **argv,
@@ -64,13 +63,13 @@ index f274a379487..954c5749233 100644
  			N_("paths are separated with NUL character"), '\0'),
 -		OPT_INTEGER('C', NULL, &state->p_context,
 -				N_("ensure at least <n> lines of context match")),
-+		OPT_MAGNITUDE('C', NULL, &state->p_context,
-+			      N_("ensure at least <n> lines of context match")),
++		OPT_UNSIGNED('C', NULL, &state->p_context,
++			     N_("ensure at least <n> lines of context match")),
  		OPT_CALLBACK(0, "whitespace", state, N_("action"),
  			N_("detect new or modified lines that have whitespace errors"),
  			apply_option_parse_whitespace),
 diff --git a/builtin/backfill.c b/builtin/backfill.c
-index 33e1ea2f84f..a6069fb783c 100644
+index 33e1ea2f84f..d95d7a2d4d6 100644
 --- a/builtin/backfill.c
 +++ b/builtin/backfill.c
 @@ -123,8 +123,8 @@ int cmd_backfill(int argc, const char **argv, const char *prefix, struct reposit
@@ -79,13 +78,13 @@ index 33e1ea2f84f..a6069fb783c 100644
  	struct option options[] = {
 -		OPT_INTEGER(0, "min-batch-size", &ctx.min_batch_size,
 -			    N_("Minimum number of objects to request at a time")),
-+		OPT_MAGNITUDE(0, "min-batch-size", &ctx.min_batch_size,
-+			      N_("Minimum number of objects to request at a time")),
++		OPT_UNSIGNED(0, "min-batch-size", &ctx.min_batch_size,
++			     N_("Minimum number of objects to request at a time")),
  		OPT_BOOL(0, "sparse", &ctx.sparse,
  			 N_("Restrict the missing objects to the current sparse-checkout")),
  		OPT_END(),
 diff --git a/builtin/column.c b/builtin/column.c
-index 50314cc2559..290194e92e6 100644
+index 50314cc2559..ce6443d5fac 100644
 --- a/builtin/column.c
 +++ b/builtin/column.c
 @@ -31,7 +31,7 @@ int cmd_column(int argc,
@@ -93,12 +92,12 @@ index 50314cc2559..290194e92e6 100644
  		OPT_STRING(0, "command", &real_command, N_("name"), N_("lookup config vars")),
  		OPT_COLUMN(0, "mode", &colopts, N_("layout to use")),
 -		OPT_INTEGER(0, "raw-mode", &colopts, N_("layout to use")),
-+		OPT_MAGNITUDE(0, "raw-mode", &colopts, N_("layout to use")),
++		OPT_UNSIGNED(0, "raw-mode", &colopts, N_("layout to use")),
  		OPT_INTEGER(0, "width", &copts.width, N_("maximum width")),
  		OPT_STRING(0, "indent", &copts.indent, N_("string"), N_("padding space on left border")),
  		OPT_STRING(0, "nl", &copts.nl, N_("string"), N_("padding space on right border")),
 diff --git a/builtin/grep.c b/builtin/grep.c
-index d1427290f77..d1073c9e6e5 100644
+index c4869733e1b..f23a6f1dc86 100644
 --- a/builtin/grep.c
 +++ b/builtin/grep.c
 @@ -983,9 +983,9 @@ int cmd_grep(int argc,
@@ -106,10 +105,10 @@ index d1427290f77..d1073c9e6e5 100644
  			N_("show <n> context lines before and after matches"),
  			context_callback),
 -		OPT_INTEGER('B', "before-context", &opt.pre_context,
-+		OPT_MAGNITUDE('B', "before-context", &opt.pre_context,
++		OPT_UNSIGNED('B', "before-context", &opt.pre_context,
  			N_("show <n> context lines before matches")),
 -		OPT_INTEGER('A', "after-context", &opt.post_context,
-+		OPT_MAGNITUDE('A', "after-context", &opt.post_context,
++		OPT_UNSIGNED('A', "after-context", &opt.post_context,
  			N_("show <n> context lines after matches")),
  		OPT_INTEGER(0, "threads", &num_threads,
  			N_("use <n> worker threads")),
@@ -138,24 +137,24 @@ index e123288e8f1..18573f7be86 100644
   * ARRAY_SIZE - get the number of elements in a visible array
   * @x: the array whose size you want.
 diff --git a/parse-options.h b/parse-options.h
-index 997ffbee805..bf14c9962a9 100644
+index dc460a26ff1..91c3e3c29b3 100644
 --- a/parse-options.h
 +++ b/parse-options.h
-@@ -213,7 +213,7 @@ struct option {
+@@ -218,7 +218,7 @@ struct option {
  	.type = OPTION_INTEGER, \
  	.short_name = (s), \
  	.long_name = (l), \
 -	.value = (v), \
 +	.value = (v) + BARF_UNLESS_SIGNED(*(v)), \
+ 	.precision = sizeof(*v), \
  	.argh = N_("n"), \
  	.help = (h), \
- 	.flags = (f), \
-@@ -274,7 +274,7 @@ struct option {
- 	.type = OPTION_MAGNITUDE, \
+@@ -280,7 +280,7 @@ struct option {
+ 	.type = OPTION_UNSIGNED, \
  	.short_name = (s), \
  	.long_name = (l), \
 -	.value = (v), \
 +	.value = (v) + BARF_UNLESS_UNSIGNED(*(v)), \
+ 	.precision = sizeof(*v), \
  	.argh = N_("n"), \
  	.help = (h), \
- 	.flags = PARSE_OPT_NONEG, \
