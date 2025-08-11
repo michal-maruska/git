@@ -2963,6 +2963,8 @@ proc makewindow {} {
         bind %W <Map> {}
         if ($original_layout) {
             %W sashpos 0 $::geometry(botwidth)
+        } else {
+            %W sashpos 0 $::geometry(botwidth)
         }
     }
     bind .commitWidget <Configure> {resizecdetpanes %W %w}
