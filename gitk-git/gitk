@@ -3028,6 +3028,8 @@ proc makewindow {} {
         bind %W <Map> {}
         if ($original_layout) {
             %W sashpos 0 $::geometry(botwidth)
+        } else {
+            %W sashpos 0 $::geometry(botwidth)
         }
     }
     # bind .narrow <Configure> {resizecdetpanes %W %w}
