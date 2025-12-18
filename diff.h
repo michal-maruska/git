@@ -205,9 +205,8 @@ static inline void diff_flags_or(struct diff_flags *a,
 {
 	char *tmp_a = (char *)a;
 	const char *tmp_b = (const char *)b;
-	int i;
 
-	for (i = 0; i < sizeof(struct diff_flags); i++)
+	for (size_t i = 0; i < sizeof(struct diff_flags); i++)
 		tmp_a[i] |= tmp_b[i];
 }
 
@@ -334,7 +333,7 @@ struct diff_options {
 	int xdl_opts;
 	int ignore_driver_algorithm;
 
-	/* see Documentation/diff-options.txt */
+	/* see Documentation/diff-options.adoc */
 	char **anchors;
 	size_t anchors_nr, anchors_alloc;
 
@@ -353,6 +352,14 @@ struct diff_options {
 
 	/* to support internal diff recursion by --follow hack*/
 	int found_follow;
+
+	/*
+	 * By default, diffcore_std() resolves the statuses for queued diff file
+	 * pairs by calling diff_resolve_rename_copy(). If status information
+	 * has already been manually set, this option prevents diffcore_std()
+	 * from resetting statuses.
+	 */
+	int skip_resolving_statuses;
 
 	/* Callback which allows tweaking the options in diff_setup_done(). */
 	void (*set_default)(struct diff_options *);
@@ -392,6 +399,8 @@ struct diff_options {
 	#define COLOR_MOVED_WS_ALLOW_INDENTATION_CHANGE (1<<5)
 	#define COLOR_MOVED_WS_ERROR (1<<0)
 	unsigned color_moved_ws_handling;
+
+	bool dry_run;
 
 	struct repository *repo;
 	struct strmap *additional_path_headers;
@@ -463,7 +472,7 @@ const char *diff_line_prefix(struct diff_options *);
 extern const char mime_boundary_leader[];
 
 struct combine_diff_path *diff_tree_paths(
-	struct combine_diff_path *p, const struct object_id *oid,
+	const struct object_id *oid,
 	const struct object_id **parents_oid, int nparent,
 	struct strbuf *base, struct diff_options *opt);
 void diff_tree_oid(const struct object_id *old_oid,
@@ -481,12 +490,20 @@ struct combine_diff_path {
 		char status;
 		unsigned int mode;
 		struct object_id oid;
-		struct strbuf path;
+		/*
+		 * This per-parent path is filled only when doing a combined
+		 * diff with revs.combined_all_paths set, and only if the path
+		 * differs from the post-image (e.g., a rename or copy).
+		 * Otherwise it is left NULL.
+		 */
+		char *path;
 	} parent[FLEX_ARRAY];
 };
-#define combine_diff_path_size(n, l) \
-	st_add4(sizeof(struct combine_diff_path), (l), 1, \
-		st_mult(sizeof(struct combine_diff_parent), (n)))
+struct combine_diff_path *combine_diff_path_new(const char *path,
+						size_t path_len,
+						unsigned int mode,
+						const struct object_id *oid,
+						size_t num_parents);
 
 void show_combined_diff(struct combine_diff_path *elem, int num_parent,
 			struct rev_info *);
@@ -500,6 +517,31 @@ void diff_set_noprefix(struct diff_options *options);
 void diff_set_default_prefix(struct diff_options *options);
 
 int diff_can_quit_early(struct diff_options *);
+
+/*
+ * Stages changes in the provided diff queue for file additions and deletions.
+ * If a file pair gets queued, it is returned.
+ */
+struct diff_filepair *diff_queue_addremove(struct diff_queue_struct *queue,
+					   struct diff_options *,
+					   int addremove, unsigned mode,
+					   const struct object_id *oid,
+					   int oid_valid, const char *fullpath,
+					   unsigned dirty_submodule);
+
+/*
+ * Stages changes in the provided diff queue for file modifications.
+ * If a file pair gets queued, it is returned.
+ */
+struct diff_filepair *diff_queue_change(struct diff_queue_struct *queue,
+					struct diff_options *,
+					unsigned mode1, unsigned mode2,
+					const struct object_id *old_oid,
+					const struct object_id *new_oid,
+					int old_oid_valid, int new_oid_valid,
+					const char *fullpath,
+					unsigned dirty_submodule1,
+					unsigned dirty_submodule2);
 
 void diff_addremove(struct diff_options *,
 		    int addremove,
@@ -645,11 +687,11 @@ void run_diff_index(struct rev_info *revs, unsigned int option);
 
 int do_diff_cache(const struct object_id *, struct diff_options *);
 int diff_flush_patch_id(struct diff_options *, struct object_id *, int);
-void flush_one_hunk(struct object_id *result, git_hash_ctx *ctx);
+void flush_one_hunk(struct object_id *result, struct git_hash_ctx *ctx);
 
 int diff_result_code(struct rev_info *);
 
-int diff_no_index(struct rev_info *,
+int diff_no_index(struct rev_info *, const struct git_hash_algo *algop,
 		  int implicit_no_index, int, const char **);
 
 int index_differs_from(struct repository *r, const char *def,

@@ -8,7 +8,6 @@ test_description='Test of the various options to git rm.'
 GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME=main
 export GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME
 
-TEST_PASSES_SANITIZE_LEAK=true
 . ./test-lib.sh
 
 # Setup some files to be removed, some with funny characters
@@ -17,11 +16,6 @@ test_expect_success 'Initialize test directory' '
 	git add -- foo bar baz "space embedded" -q &&
 	git commit -m "add normal files"
 '
-
-if test_have_prereq !FUNNYNAMES
-then
-	say 'Your filesystem does not allow tabs in filenames.'
-fi
 
 test_expect_success FUNNYNAMES 'add files with funny names' '
 	touch -- "tab	embedded" "newline${LF}embedded" &&

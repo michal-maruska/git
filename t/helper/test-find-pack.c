@@ -2,7 +2,7 @@
 
 #include "test-tool.h"
 #include "object-name.h"
-#include "object-store.h"
+#include "odb.h"
 #include "packfile.h"
 #include "parse-options.h"
 #include "setup.h"
@@ -15,7 +15,7 @@
  * packfiles containing the object is not <n>.
  */
 
-static const char *find_pack_usage[] = {
+static const char *const find_pack_usage[] = {
 	"test-tool find-pack [--check-count <n>] <object>",
 	NULL
 };
@@ -40,7 +40,7 @@ int cmd__find_pack(int argc, const char **argv)
 		die("cannot parse %s as an object name", argv[0]);
 
 	for (p = get_all_packs(the_repository); p; p = p->next)
-		if (find_pack_entry_one(oid.hash, p)) {
+		if (find_pack_entry_one(&oid, p)) {
 			printf("%s\n", p->pack_name);
 			actual_count++;
 		}

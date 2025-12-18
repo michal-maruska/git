@@ -12,7 +12,7 @@
 #include "oidmap.h"
 #include "oidset.h"
 #include "object-name.h"
-#include "object-store-ll.h"
+#include "odb.h"
 
 /* Remember to update object flag allocation in object.h */
 /*
@@ -244,7 +244,7 @@ static void filter_trees_free(void *filter_data) {
 	struct filter_trees_depth_data *d = filter_data;
 	if (!d)
 		return;
-	oidmap_free(&d->seen_at_depth, 1);
+	oidmap_clear(&d->seen_at_depth, 1);
 	free(d);
 }
 
@@ -310,7 +310,7 @@ static enum list_objects_filter_result filter_blobs_limit(
 		assert(obj->type == OBJ_BLOB);
 		assert((obj->flags & SEEN) == 0);
 
-		t = oid_object_info(r, &obj->oid, &object_length);
+		t = odb_read_object_info(r->objects, &obj->oid, &object_length);
 		if (t != OBJ_BLOB) { /* probably OBJ_NONE */
 			/*
 			 * We DO NOT have the blob locally, so we cannot

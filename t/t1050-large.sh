@@ -3,11 +3,11 @@
 
 test_description='adding and checking out large blobs'
 
-TEST_PASSES_SANITIZE_LEAK=true
 . ./test-lib.sh
 
 test_expect_success 'core.bigFileThreshold must be non-negative' '
-	test_must_fail git -c core.bigFileThreshold=-1 rev-parse >out 2>err &&
+	: >input &&
+	test_must_fail git -c core.bigFileThreshold=-1 hash-object input >out 2>err &&
 	grep "bad numeric config value" err &&
 	test_must_be_empty out
 '

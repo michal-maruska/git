@@ -5,7 +5,6 @@ test_description='basic git replay tests'
 GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME=main
 export GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME
 
-TEST_PASSES_SANITIZE_LEAK=true
 . ./test-lib.sh
 
 GIT_AUTHOR_NAME=author@name
@@ -194,6 +193,28 @@ test_expect_success 'using replay on bare repo to rebase multiple divergent bran
 		git -C bare log --format=%s $(grep topic$i result | cut -f 3 -d " ") >actual &&
 		test_cmp expect$i actual || return 1
 	done
+'
+
+test_expect_success 'merge.directoryRenames=false' '
+	# create a test case that stress-tests the rename caching
+	git switch -c rename-onto &&
+
+	mkdir -p to-rename &&
+	test_commit to-rename/move &&
+
+	mkdir -p renamed-directory &&
+	git mv to-rename/move* renamed-directory/ &&
+	test_tick &&
+	git commit -m renamed-directory &&
+
+	git switch -c rename-from HEAD^ &&
+	test_commit to-rename/add-a-file &&
+	echo modified >to-rename/add-a-file.t &&
+	test_tick &&
+	git commit -m modified to-rename/add-a-file.t &&
+
+	git -c merge.directoryRenames=false replay \
+		--onto rename-onto rename-onto..rename-from
 '
 
 test_done

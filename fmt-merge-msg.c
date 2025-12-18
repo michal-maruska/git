@@ -1,11 +1,12 @@
 #define USE_THE_REPOSITORY_VARIABLE
+#define DISABLE_SIGN_COMPARE_WARNINGS
 
 #include "git-compat-util.h"
 #include "config.h"
 #include "environment.h"
 #include "refs.h"
 #include "object-name.h"
-#include "object-store-ll.h"
+#include "odb.h"
 #include "diff.h"
 #include "diff-merges.h"
 #include "hex.h"
@@ -525,8 +526,8 @@ static void fmt_merge_msg_sigs(struct strbuf *out)
 		struct object_id *oid = origins.items[i].util;
 		enum object_type type;
 		unsigned long size;
-		char *buf = repo_read_object_file(the_repository, oid, &type,
-						  &size);
+		char *buf = odb_read_object(the_repository->objects, oid,
+					    &type, &size);
 		char *origbuf = buf;
 		unsigned long len = size;
 		struct signature_check sigc = { NULL };

@@ -11,8 +11,13 @@
 
 test_description='test tree diff when trees have duplicate entries'
 
-TEST_PASSES_SANITIZE_LEAK=true
 . ./test-lib.sh
+
+if ! test_have_prereq PERL_TEST_HELPERS
+then
+	skip_all='skipping diff duplicates tests; Perl not available'
+	test_done
+fi
 
 # make_tree_entry <mode> <mode> <sha1>
 #

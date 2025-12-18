@@ -1,6 +1,7 @@
 #define USE_THE_REPOSITORY_VARIABLE
 #include "builtin.h"
 #include "config.h"
+#include "environment.h"
 #include "gettext.h"
 #include "hook.h"
 #include "parse-options.h"
@@ -19,7 +20,8 @@ static const char * const builtin_hook_run_usage[] = {
 	NULL
 };
 
-static int run(int argc, const char **argv, const char *prefix)
+static int run(int argc, const char **argv, const char *prefix,
+	       struct repository *repo UNUSED)
 {
 	int i;
 	struct run_hooks_opt opt = RUN_HOOKS_OPT_INIT;
@@ -54,7 +56,7 @@ static int run(int argc, const char **argv, const char *prefix)
 		strvec_push(&opt.args, argv[i]);
 
 	/* Need to take into account core.hooksPath */
-	git_config(git_default_config, NULL);
+	repo_config(the_repository, git_default_config, NULL);
 
 	hook_name = argv[0];
 	if (!ignore_missing)
@@ -70,7 +72,7 @@ usage:
 int cmd_hook(int argc,
 	     const char **argv,
 	     const char *prefix,
-	     struct repository *repo UNUSED)
+	     struct repository *repo)
 {
 	parse_opt_subcommand_fn *fn = NULL;
 	struct option builtin_hook_options[] = {
@@ -81,5 +83,5 @@ int cmd_hook(int argc,
 	argc = parse_options(argc, argv, NULL, builtin_hook_options,
 			     builtin_hook_usage, 0);
 
-	return fn(argc, argv, prefix);
+	return fn(argc, argv, prefix, repo);
 }

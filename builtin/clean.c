@@ -5,11 +5,15 @@
  *
  * Based on git-clean.sh by Pavel Roskin
  */
+
 #define USE_THE_REPOSITORY_VARIABLE
+#define DISABLE_SIGN_COMPARE_WARNINGS
+
 #include "builtin.h"
 #include "abspath.h"
 #include "config.h"
 #include "dir.h"
+#include "environment.h"
 #include "gettext.h"
 #include "parse-options.h"
 #include "path.h"
@@ -946,7 +950,7 @@ int cmd_clean(int argc,
 		OPT_END()
 	};
 
-	git_config(git_clean_config, NULL);
+	repo_config(the_repository, git_clean_config, NULL);
 
 	argc = parse_options(argc, argv, prefix, options, builtin_clean_usage,
 			     0);

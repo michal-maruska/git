@@ -1,4 +1,6 @@
 #define USE_THE_REPOSITORY_VARIABLE
+#define DISABLE_SIGN_COMPARE_WARNINGS
+
 #include "builtin.h"
 #include "config.h"
 #include "environment.h"
@@ -17,7 +19,7 @@
 #include "setup.h"
 #include "strvec.h"
 #include "run-command.h"
-#include "object-store-ll.h"
+#include "odb.h"
 #include "list-objects.h"
 #include "commit-slab.h"
 #include "wildmatch.h"
@@ -366,6 +368,13 @@ static void describe_commit(struct object_id *oid, struct strbuf *dst)
 		struct commit_name **slot;
 
 		seen_commits++;
+
+		if (match_cnt == max_candidates ||
+		    match_cnt == hashmap_get_size(&names)) {
+			gave_up_on = c;
+			break;
+		}
+
 		slot = commit_names_peek(&commit_names, c);
 		n = slot ? *slot : NULL;
 		if (n) {
@@ -380,10 +389,6 @@ static void describe_commit(struct object_id *oid, struct strbuf *dst)
 				c->object.flags |= t->flag_within;
 				if (n->prio == 2)
 					annotated_cnt++;
-			}
-			else {
-				gave_up_on = c;
-				break;
 			}
 		}
 		for (cur_match = 0; cur_match < match_cnt; cur_match++) {
@@ -470,9 +475,8 @@ static void describe_commit(struct object_id *oid, struct strbuf *dst)
 		fprintf(stderr, _("traversed %lu commits\n"), seen_commits);
 		if (gave_up_on) {
 			fprintf(stderr,
-				_("more than %i tags found; listed %i most recent\n"
-				"gave up search at %s\n"),
-				max_candidates, max_candidates,
+				_("found %i tags; gave up search at %s\n"),
+				max_candidates,
 				oid_to_hex(&gave_up_on->object.oid));
 		}
 	}
@@ -514,7 +518,7 @@ static void describe_blob(struct object_id oid, struct strbuf *dst)
 {
 	struct rev_info revs;
 	struct strvec args = STRVEC_INIT;
-	struct process_commit_data pcd = { *null_oid(), oid, dst, &revs};
+	struct process_commit_data pcd = { *null_oid(the_hash_algo), oid, dst, &revs};
 
 	strvec_pushl(&args, "internal: The first arg is not parsed",
 		     "--objects", "--in-commit-order", "--reverse", "HEAD",
@@ -548,7 +552,8 @@ static void describe(const char *arg, int last_one)
 
 	if (cmit)
 		describe_commit(&oid, &sb);
-	else if (oid_object_info(the_repository, &oid, NULL) == OBJ_BLOB)
+	else if (odb_read_object_info(the_repository->objects,
+				      &oid, NULL) == OBJ_BLOB)
 		describe_blob(oid, &sb);
 	else
 		die(_("%s is neither a commit nor blob"), arg);
@@ -597,16 +602,28 @@ int cmd_describe(int argc,
 			   N_("do not consider tags matching <pattern>")),
 		OPT_BOOL(0, "always",        &always,
 			N_("show abbreviated commit object as fallback")),
-		{OPTION_STRING, 0, "dirty",  &dirty, N_("mark"),
-			N_("append <mark> on dirty working tree (default: \"-dirty\")"),
-			PARSE_OPT_OPTARG, NULL, (intptr_t) "-dirty"},
-		{OPTION_STRING, 0, "broken",  &broken, N_("mark"),
-			N_("append <mark> on broken working tree (default: \"-broken\")"),
-			PARSE_OPT_OPTARG, NULL, (intptr_t) "-broken"},
+		{
+			.type = OPTION_STRING,
+			.long_name = "dirty",
+			.value = &dirty,
+			.argh = N_("mark"),
+			.help = N_("append <mark> on dirty working tree (default: \"-dirty\")"),
+			.flags = PARSE_OPT_OPTARG,
+			.defval = (intptr_t) "-dirty",
+		},
+		{
+			.type = OPTION_STRING,
+			.long_name = "broken",
+			.value = &broken,
+			.argh = N_("mark"),
+			.help = N_("append <mark> on broken working tree (default: \"-broken\")"),
+			.flags = PARSE_OPT_OPTARG,
+			.defval = (intptr_t) "-broken",
+		},
 		OPT_END(),
 	};
 
-	git_config(git_default_config, NULL);
+	repo_config(the_repository, git_default_config, NULL);
 	argc = parse_options(argc, argv, prefix, options, describe_usage, 0);
 	if (abbrev < 0)
 		abbrev = DEFAULT_ABBREV;

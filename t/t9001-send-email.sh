@@ -4,7 +4,6 @@ test_description='git send-email'
 GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME=main
 export GIT_TEST_DEFAULT_INITIAL_BRANCH_NAME
 
-TEST_PASSES_SANITIZE_LEAK=true
 . ./test-lib.sh
 
 # May be altered later in the test
@@ -200,6 +199,13 @@ test_expect_success $PREREQ 'cc trailer with get_maintainer.pl output' '
 		--cc-cmd=./expected-cc-script.sh \
 		--smtp-server="$(pwd)/fake.sendmail" &&
 	test_cmp expected-cc commandline1
+'
+
+test_expect_failure $PREREQ 'invalid smtp server port value' '
+	clean_fake_sendmail &&
+	git send-email -1 --to=recipient@example.com \
+		--smtp-server-port=bogus-symbolic-name \
+		--smtp-server="$(pwd)/fake.sendmail"
 '
 
 test_expect_success $PREREQ 'setup expect' "

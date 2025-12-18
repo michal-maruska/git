@@ -1,4 +1,5 @@
 #define USE_THE_REPOSITORY_VARIABLE
+
 #include "builtin.h"
 #include "config.h"
 #include "commit.h"
@@ -186,7 +187,7 @@ static void insert_records_from_trailers(struct shortlog *log,
 					     ctx->output_encoding);
 	body = strstr(commit_buffer, "\n\n");
 	if (!body)
-		return;
+		goto out;
 
 	trailer_iterator_init(&iter, body);
 	while (trailer_iterator_advance(&iter)) {
@@ -205,6 +206,7 @@ static void insert_records_from_trailers(struct shortlog *log,
 	}
 	trailer_iterator_release(&iter);
 
+out:
 	strbuf_release(&ident);
 	repo_unuse_commit_buffer(the_repository, commit, commit_buffer);
 }
@@ -407,7 +409,19 @@ int cmd_shortlog(int argc,
 
 	struct parse_opt_ctx_t ctx;
 
-	git_config(git_default_config, NULL);
+	/*
+	 * NEEDSWORK: Later on we'll call parse_revision_opt which relies on
+	 * the hash algorithm being set but since we are operating outside of a
+	 * Git repository we cannot determine one. This is only needed because
+	 * parse_revision_opt expects hexsz for --abbrev which is irrelevant
+	 * for shortlog outside of a git repository. For now explicitly set
+	 * SHA1, but ideally the parsing machinery would be split between
+	 * git/nongit so that we do not have to do this.
+	 */
+	if (nongit && !the_hash_algo)
+		repo_set_hash_algo(the_repository, GIT_HASH_DEFAULT);
+
+	repo_config(the_repository, git_default_config, NULL);
 	shortlog_init(&log);
 	repo_init_revisions(the_repository, &rev, prefix);
 	parse_options_start(&ctx, argc, argv, prefix, options,

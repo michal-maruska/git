@@ -20,13 +20,26 @@ int cmd_fmt_merge_msg(int argc,
 	char *into_name = NULL;
 	int shortlog_len = -1;
 	struct option options[] = {
-		{ OPTION_INTEGER, 0, "log", &shortlog_len, N_("n"),
-		  N_("populate log with at most <n> entries from shortlog"),
-		  PARSE_OPT_OPTARG, NULL, DEFAULT_MERGE_LOG_LEN },
-		{ OPTION_INTEGER, 0, "summary", &shortlog_len, N_("n"),
-		  N_("alias for --log (deprecated)"),
-		  PARSE_OPT_OPTARG | PARSE_OPT_HIDDEN, NULL,
-		  DEFAULT_MERGE_LOG_LEN },
+		{
+			.type = OPTION_INTEGER,
+			.long_name = "log",
+			.value = &shortlog_len,
+			.precision = sizeof(shortlog_len),
+			.argh = N_("n"),
+			.help = N_("populate log with at most <n> entries from shortlog"),
+			.flags = PARSE_OPT_OPTARG,
+			.defval = DEFAULT_MERGE_LOG_LEN,
+		},
+		{
+			.type = OPTION_INTEGER,
+			.long_name = "summary",
+			.value = &shortlog_len,
+			.precision = sizeof(shortlog_len),
+			.argh = N_("n"),
+			.help = N_("alias for --log (deprecated)"),
+			.flags = PARSE_OPT_OPTARG | PARSE_OPT_HIDDEN,
+			.defval = DEFAULT_MERGE_LOG_LEN,
+		},
 		OPT_STRING('m', "message", &message, N_("text"),
 			N_("use <text> as start of message")),
 		OPT_STRING(0, "into-name", &into_name, N_("name"),
@@ -40,7 +53,7 @@ int cmd_fmt_merge_msg(int argc,
 	int ret;
 	struct fmt_merge_msg_opts opts;
 
-	git_config(fmt_merge_msg_config, NULL);
+	repo_config(the_repository, fmt_merge_msg_config, NULL);
 	argc = parse_options(argc, argv, prefix, options, fmt_merge_msg_usage,
 			     0);
 	if (argc > 0)
