@@ -2523,8 +2523,9 @@ proc create_history_pane {} {
     ${tf}.histframe.pwclist add $canv3
     bind ${tf}.histframe.pwclist <Map> {
         bind %W <Map> {}
-         ${tf}.histframe.pwclist sashpos 1 [lindex $::geometry(pwsash1) 0]
-         ${tf}.histframe.pwclist sashpos 0 [lindex $::geometry(pwsash0) 0]
+        ## mmc:
+        ${tfpath}.histframe.pwclist sashpos 1 [lindex $::geometry(pwsash1) 0]
+        ${tfpath}.histframe.pwclist sashpos 0 [lindex $::geometry(pwsash0) 0]
     }
 
     # a scroll bar to rule them
@@ -2585,8 +2586,6 @@ proc create_history_pane {} {
     ttk::button ${tf}.lbar.fprev -command {dofind -1 1} -text \u2191 -width 3w
 
     ttk::label ${tf}.lbar.flab2 -text " [mc "commit"] "
-
-    ${NS}::label ${tf}.lbar.flab2 -text " [mc "commit"] "
     pack ${tf}.lbar.flabel ${tf}.lbar.fnext ${tf}.lbar.fprev ${tf}.lbar.flab2 \
         -side left -fill y
     set gdttype [mc "containing:"]
@@ -6890,6 +6889,9 @@ proc bindline {t id} {
 }
 
 proc graph_pane_width {} {
+    global tfpath
+    set tf $tfpath
+
     set g [${tf}.histframe.pwclist sashpos 0]
     return [lindex $g 0]
 }
