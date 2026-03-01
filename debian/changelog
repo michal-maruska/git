@@ -1,3 +1,9 @@
+git (1:2.53.0-0.1) unstable; urgency=low
+
+  * new upstream release (see RelNotes/2.52.0.adoc, 2.53.0.adoc).
+
+ -- Jonathan Nieder <jrnieder@gmail.com>  Sun, 01 Mar 2026 22:05:55 +0100
+
 git (1:2.51.0-1) unstable; urgency=low
 
   * new upstream release (see RelNotes/2.51.0.adoc).
