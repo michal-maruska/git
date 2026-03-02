@@ -2873,12 +2873,16 @@ proc makewindow {} {
         # fixme: this is NOT `maruska' layout!
         .ctop add ${tfpath}
 
+        if {!$use_ttk} {
+            .ctop paneconfigure ${tf} -height $geometry(topheight)
+            .ctop paneconfigure ${tf} -width $geometry(topwidth)
+        }
     }
 
     if ($original_layout) {
         if (true) {
             # new widget:
-            ttk::frame .narrow -height $geometry(topheight) \
+            ${NS}::frame .narrow -height $geometry(topheight) \
                 -width [ expr {int($geometry(topwidth) / 2)} ]
 
             # .narrow add .tf
