@@ -2943,7 +2943,8 @@ proc makewindow {} {
 
     bind .ctop <Map> {
         bind %W <Map> {}
-        %W sashpos 0 $::geometry(topheight)
+        # bug?
+        # %W sashpos 0 $::geometry(topheight)
     }
     bind .commitWidget <Map> {
         bind %W <Map> {}
