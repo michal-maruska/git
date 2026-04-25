@@ -2490,7 +2490,7 @@ proc create_history_pane {} {
     global be_verbose
 
     # possibly use assumed geometry
-    if {![info exists geometry(pwsash0)]} {
+    if {![info exists geometry(pwsash0)]} { # pw ?
         puts "geometry does not exist, inventing one"
         set geometry(topheight) [expr {15 * $linespc}]
         set geometry(topwidth) [expr {80 * $charspc}]
@@ -2498,6 +2498,7 @@ proc create_history_pane {} {
         set geometry(botwidth) [expr {50 * $charspc}]
 
         set geometry(pwsash0) [list [expr {40 * $charspc}] 2]
+        # pwsash1 ? 1 vs 0?
         set geometry(pwsash1) [list [expr {60 * $charspc}] 2]
     }
 
@@ -2505,6 +2506,7 @@ proc create_history_pane {} {
     # pwc list .... canv canv2 canv3
 
     # this is like treeview!  `sash' is divisors?
+    #  panedwindow   subject-author-date  p-w-c ?
     ttk::panedwindow  ${tf}.histframe.pwclist -orient horizontal
 
     # create three canvases
@@ -2550,6 +2552,7 @@ proc create_history_pane {} {
         # }
 
         if ($original_layout) {
+            # position of column ?
             ${tf}.histframe.pwclist sashpos 1 [lindex $::geometry(pwsash1) 0]
             ${tf}.histframe.pwclist sashpos 0 [lindex $::geometry(pwsash0) 0]
         } else {
@@ -3038,6 +3041,7 @@ proc makewindow {} {
     bind . <$M1B-Key-Down> "allcanvs yview scroll 1 units"
     bind . <$M1B-Key-Prior> "allcanvs yview scroll -1 pages"
     bind . <$M1B-Key-Next> "allcanvs yview scroll 1 pages"
+    # what's the difference ??
     bindkey <Key-Delete> "$ctext yview scroll -1 pages"
     bindkey <Key-BackSpace> "$ctext yview scroll -1 pages"
     bindkey <Key-space> "$ctext yview scroll 1 pages"
@@ -3049,6 +3053,7 @@ proc makewindow {} {
     bindkey j "selnextline 1"
     bindkey h "goback"
     bindkey l "goforw"
+    # only when a file is selected!
     bindkey b prevfile
     bindkey d "$ctext yview scroll 18 units"
     bindkey u "$ctext yview scroll -18 units"
@@ -3371,6 +3376,8 @@ proc savestuff {w} {
     set stuffsaved 1
 }
 
+# so this is currently not used at all!
+# but it should be at the beginning?
 proc resizeclistpanes {win w} {
     # mmc: what is `oldwidth' ?
     global oldwidth oldsash
@@ -9011,9 +9018,11 @@ proc nextfile {} {
     global difffilestart ctext cmitmode
 
     if {$cmitmode eq "tree"} return
+    # HERE is the position in the diff at the left/top corner:
     set here [$ctext index @0,0]
     foreach loc $difffilestart {
         if {[$ctext compare $loc > $here]} {
+            # this moves the viewport:
             $ctext yview $loc
             return
         }
