@@ -2791,7 +2791,7 @@ proc makewindow {} {
     create_history_pane
     .ctop add ${tf}
     # now build up the bottom
-    ttk::panedwindow .pwbottom -orient horizontal
+    ttk::panedwindow .commitWidget -orient horizontal
 
     create_diff_pane
 
@@ -2836,12 +2836,12 @@ proc makewindow {} {
     $ctext tag lower dresult
     $ctext tag lower d0
 
-    .pwbottom add .bleft
+    .commitWidget add .bleft
 
     create_file_list .file_list
 
-    .pwbottom add .file_list
-    .ctop add .pwbottom
+    .commitWidget add .file_list
+    .ctop add .commitWidget
 
     # restore window position if known
     if {[info exists geometry(main)]} {
@@ -2864,11 +2864,11 @@ proc makewindow {} {
         bind %W <Map> {}
         %W sashpos 0 $::geometry(topheight)
     }
-    bind .pwbottom <Map> {
+    bind .commitWidget <Map> {
         bind %W <Map> {}
         %W sashpos 0 $::geometry(botwidth)
     }
-    bind .pwbottom <Configure> {resizecdetpanes %W %w}
+    bind .commitWidget <Configure> {resizecdetpanes %W %w}
 
     pack .ctop -fill both -expand 1
     bindall <1> {selcanvline %W %x %y}
