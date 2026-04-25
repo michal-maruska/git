@@ -3000,6 +3000,7 @@ proc makewindow {} {
             %W sashpos 0 $::geometry(botwidth)
         }
     }
+    # bind .narrow <Configure> {resizecdetpanes %W %w}
     bind .commitWidget <Configure> {resizecdetpanes %W %w}
 
     pack .ctop -fill both -expand 1
@@ -3323,6 +3324,7 @@ proc savestuff {w} {
         # diff area:
         puts $f "set geometry(botwidth) [winfo width .diffWidget]"
         puts $f "set geometry(botheight) [winfo height .diffWidget]"
+
         unset -nocomplain geometry
         global geometry
         if {[info exists geometry(showrefs)]} {
@@ -7121,10 +7123,13 @@ proc drawtags {id x xt y1} {
         # wid is the width (allocated)
 
         set tag_quoted [string map {% %%} $tag]
+
+
         set xl [expr {$x + $delta}]
         # here the width of the rectangle:
         # note: how $extra ... in the xwals is composed of $lthickness!
         set xr [expr {$x + $delta + $wid + $lthickness}]
+
         set font mainfont
         # mmc: first are tags, then heads, then the rest?
         if {[incr ntags -1] >= 0} {
@@ -7153,8 +7158,10 @@ proc drawtags {id x xt y1} {
             # mmc: can is a canvas .tf.histframe.pwclist.canv
             # so an object w/ bind method?
             $canv bind $t <1> $tagclick
+
             set rowtextx([rowofcommit $id]) [expr {$xr + $linespc}]
         } else {
+
             # draw a head or other ref
             if {[incr nheads -1] >= 0} {
                 # mmc: the only use of $headbgcolor:
@@ -10295,6 +10302,7 @@ proc exec_citool {tool_args {baseid {}}} {
     array set env $save_env
 }
 
+# mmc: wow!
 proc cherrypick {} {
     global rowmenuid curview
     global mainhead mainheadid
@@ -12021,6 +12029,7 @@ proc showtags {id isnew} {
     init_flist {}
 }
 
+# 
 proc doquit {} {
     global stopped
     global gitktmpdir
@@ -12502,6 +12511,7 @@ proc prefscan {} {
     set_gui_colors
 }
 
+# edit > preferences
 proc prefsok {} {
     global oldprefs prefstop fontpref treediffs
     global {*}$::config_variables
