@@ -2801,6 +2801,12 @@ proc makewindow {} {
 
     set tf .tf
     # the division between History and Change
+
+    # .ctop is container
+    # either we have  Hist|A|D | Diff |File
+    # or  Histo|A|D
+    #     -------
+    #     Diff | File
     if ($original_layout) {
         # the gui has upper and lower half, parts of a paned window.
         ttk::panedwindow .ctop -orient vertical
@@ -2818,10 +2824,13 @@ proc makewindow {} {
     create_history_pane
 
     if ($original_layout) {
-
         # Create:
         ttk::frame .narrow -height $geometry(topheight) \
             -width [ expr {int($geometry(topwidth) / 2)} ]
+
+        # fixme: this is NOT `maruska' layout!
+        # bug: says .tf already added.
+        # indeed, in create_history_pane
 
         # .narrow add .tf
         pack ${tf} -in .narrow -side top
@@ -2830,8 +2839,9 @@ proc makewindow {} {
 
         #${NS}::label .narrow.blabel -text "original_layout"
         #pack .narrow.blabel -in .narrow -side bottom -fill none
-
-        # .ctop add ${tf}
+        # Finish putting the upper half of the viewer together
+        .ctop add ${tf}
+        # .ctop add .narrow
     } else {
         .ctop add ${tf}
     }
@@ -2884,12 +2894,30 @@ proc makewindow {} {
     $ctext tag lower dresult
     $ctext tag lower d0
 
-    .commitWidget add .diffWidget
+    # .narrow add .diffWidget
+    # mmc:
+    if ($original_layout) {
+        pack .diffWidget -in .narrow -side bottom -fill y
+        # mmc: I think .diffWidget is the DIFF window.
+        .commitWidget add .diffWidget
+    } else {
+        # Add the file-list column
+        # if [expr {! $original_layout}]
+        .commitWidget add .diffWidget
+    }
 
+    # .bright is the file-list (of the commit)
     create_file_list .file_list
 
-    .commitWidget add .file_list
-    .ctop add .commitWidget
+    if [expr {! $original_layout}] {
+        .commitWidget add .file_list
+        #mmc:
+        .ctop add .commitWidget
+    } else {
+        .commitWidget add .file_list
+        .ctop add .commitWidget
+        #.ctop add .diffWidget
+    }
 
     # restore window position if known
     if {[info exists geometry(main)]} {
@@ -2914,7 +2942,9 @@ proc makewindow {} {
     }
     bind .commitWidget <Map> {
         bind %W <Map> {}
-        %W sashpos 0 $::geometry(botwidth)
+        if ($original_layout) {
+            %W sashpos 0 $::geometry(botwidth)
+        }
     }
     bind .commitWidget <Configure> {resizecdetpanes %W %w}
 
@@ -3320,6 +3350,12 @@ proc resizeclistpanes {win w} {
 }
 
 proc resizecdetpanes {win w} {
+    global original_layout
+    if [expr {! $original_layout}] {
+        puts "resizecdetpanes (the bottom reconfigured)"
+        return
+    }
+
     global oldwidth oldsash
     if {[info exists oldwidth($win)]} {
         if {[info exists oldsash($win)]} {
