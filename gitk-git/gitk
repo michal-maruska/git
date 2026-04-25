@@ -2525,11 +2525,14 @@ proc create_history_pane {} {
     ${tf}.histframe.pwclist add $canv3
     bind ${tf}.histframe.pwclist <Map> {
         global tf
-        bind %W <Map> {}
+        # mmc: inline callback! when mapped!
+        # bind %W <Map> {
+        #    puts "bound inside the history widget"
+        # }
+
         if ($original_layout) {
             ${tf}.histframe.pwclist sashpos 1 [lindex $::geometry(pwsash1) 0]
             ${tf}.histframe.pwclist sashpos 0 [lindex $::geometry(pwsash0) 0]
-
         } else {
             if {$be_verbose} {
                     puts "The history is mapped: allocating widths/offsets:"
@@ -3342,6 +3345,7 @@ proc savestuff {w} {
 
 proc resizeclistpanes {win w} {
     global oldwidth oldsash
+    puts "resizeclistpanes"
     if {[info exists oldwidth($win)]} {
         if {[info exists oldsash($win)]} {
             set s0 [lindex $oldsash($win) 0]
@@ -3380,6 +3384,8 @@ proc resizeclistpanes {win w} {
                 set sash1 [expr {$w - $date_width}]
             }
         }
+
+        puts [ format "resizeclistpanes: factor: %f %d %d %d\n" $factor $sash0 $sash1 $w ]
         $win sashpos 0 $sash0
         $win sashpos 1 $sash1
         set oldsash($win) [list $sash0 $sash1]
