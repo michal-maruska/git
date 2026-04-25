@@ -2484,6 +2484,9 @@ proc create_history_pane {} {
     # not headctxmenu
     # set:
     global progresscanv progressitem progresscoords statusw
+    # consulted:
+    # mmc: in new version this is dropped.
+    global original_layout
 
     # possibly use assumed geometry
     if {![info exists geometry(pwsash0)]} {
@@ -2497,7 +2500,6 @@ proc create_history_pane {} {
         set geometry(pwsash1) [list [expr {60 * $charspc}] 2]
     }
 
-    # the upper half will have a paned window, a scroll bar to the right, and some stuff below
     ttk::frame  ${tf}.histframe
     ttk::panedwindow  ${tf}.histframe.pwclist -orient horizontal
 
@@ -2523,9 +2525,16 @@ proc create_history_pane {} {
     bind ${tf}.histframe.pwclist <Map> {
         global tf
         bind %W <Map> {}
-        ## mmc:
-        ${tf}.histframe.pwclist sashpos 1 [lindex $::geometry(pwsash1) 0]
-        ${tf}.histframe.pwclist sashpos 0 [lindex $::geometry(pwsash0) 0]
+        if ($original_layout) {
+            ${tf}.histframe.pwclist sashpos 1 [lindex $::geometry(pwsash1) 0]
+            ${tf}.histframe.pwclist sashpos 0 [lindex $::geometry(pwsash0) 0]
+
+        } else {
+            # mmc: this is a callback! it must have its variables.
+            # so what is this?
+            set offset1 [lindex $::geometry(pwsash1) 0]
+            set offset0 [lindex $::geometry(pwsash0) 0]
+        }
     }
 
     # a scroll bar to rule them
@@ -2799,8 +2808,13 @@ proc makewindow {} {
         ttk::panedwindow .ctop -orient horizontal
     }
 
-    # mmc: vertical
-    ttk::frame  ${tf} -height $geometry(topheight) -width $geometry(topwidth)
+    if ($original_layout) {
+        ttk::frame  ${tf} -height $geometry(topheight) -width $geometry(topwidth)
+    } else {
+        # Instead of taking over the whole top half, we take narrow:
+        ttk::frame  ${tf} -height $geometry(topheight) -width [ expr {int($geometry(topwidth) / 2)} ]
+    }
+
     create_history_pane
 
     if ($original_layout) {
