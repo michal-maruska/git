@@ -2502,27 +2502,43 @@ proc create_history_pane {} {
     }
 
     ttk::frame  ${tf}.histframe
+    # pwc list .... canv canv2 canv3
+
+    # this is like treeview!  `sash' is divisors?
     ttk::panedwindow  ${tf}.histframe.pwclist -orient horizontal
 
     # create three canvases
     set cscroll ${tf}.histframe.csb
+
+# mmc: I want to persist the widths here!
     set canv ${tf}.histframe.pwclist.canv
+
     canvas $canv \
         -selectbackground $selectbgcolor \
         -background $bgcolor -bd 0 \
         -xscrollincr $linespc \
         -yscrollincr $linespc -yscrollcommand "scrollcanv $cscroll"
     ${tf}.histframe.pwclist add $canv
+
     set canv2 ${tf}.histframe.pwclist.canv2
     canvas $canv2 \
         -selectbackground $selectbgcolor \
         -background $bgcolor -bd 0 -yscrollincr $linespc
     ${tf}.histframe.pwclist add $canv2
+
     set canv3 ${tf}.histframe.pwclist.canv3
     canvas $canv3 \
         -selectbackground $selectbgcolor \
         -background $bgcolor -bd 0 -yscrollincr $linespc -width 5
-    ${tf}.histframe.pwclist add $canv3
+
+    if ($original_layout) {
+        ${tf}.histframe.pwclist add $canv3
+    } else {
+        ${tf}.histframe.pwclist add $canv3
+        # -weight 2
+        ## Why weight 2?
+    }
+
     bind ${tf}.histframe.pwclist <Map> {
         global tf
         # mmc: inline callback! when mapped!
@@ -2583,6 +2599,7 @@ proc create_history_pane {} {
 
     ttk::button ${tf}.bar.leftbut -command goback -state disabled
     ${tf}.bar.leftbut configure -text \u2190 -width 3
+
     pack ${tf}.bar.leftbut -side left -fill y
     ttk::button ${tf}.bar.rightbut -command goforw -state disabled
     ${tf}.bar.rightbut configure -text \u2192 -width 3
