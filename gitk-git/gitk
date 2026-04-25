@@ -2422,6 +2422,7 @@ proc create_file_list {parent} {
     set top ${parent}
 
     ttk::frame ${top}
+    # switch between diff and current-situation modes of display
     ttk::frame ${top}.mode
     ttk::radiobutton ${top}.mode.patch -text [mc "Patch"] \
         -command reselectline -variable cmitmode -value "patch"
@@ -2445,6 +2446,7 @@ proc create_file_list {parent} {
     lappend bglist $cflist
     lappend fglist $cflist
     ttk::scrollbar ${top}.sb -command "$cflist yview"
+    # placement:
     pack ${top}.sb -side right -fill y
     pack $cflist -side left -fill both -expand 1
     $cflist tag configure highlight \
