@@ -2413,6 +2413,45 @@ proc bind_mousewheel_buttons {} {
 # the "path" under which to find/build
 set tf .tf
 # tf is ...also global after all.
+
+# Originally on the right in the bottom half
+# mmc: creates cflist
+proc create_file_list {parent} {
+    global cflist
+    global bgcolor bglist selectbgcolor fgcolor
+    set top ${parent}
+
+    ttk::frame ${top}
+    ttk::frame ${top}.mode
+    ttk::radiobutton ${top}.mode.patch -text [mc "Patch"] \
+        -command reselectline -variable cmitmode -value "patch"
+    ttk::radiobutton ${top}.mode.tree -text [mc "Tree"] \
+        -command reselectline -variable cmitmode -value "tree"
+    grid ${top}.mode.patch ${top}.mode.tree -sticky ew
+    # placement:
+    pack ${top}.mode -side top -fill x
+
+    # the file list text:
+    set cflist ${top}.cfiles
+    set indent [font measure mainfont "nn"]
+    text $cflist \
+        -selectbackground $selectbgcolor \
+        -background $bgcolor -foreground $fgcolor \
+        -font mainfont \
+        -tabs [list $indent [expr {2 * $indent}]] \
+        -yscrollcommand " ${top}.sb set" \
+        -cursor [. cget -cursor] \
+        -spacing1 1 -spacing3 1
+    lappend bglist $cflist
+    lappend fglist $cflist
+    ttk::scrollbar ${top}.sb -command "$cflist yview"
+    pack ${top}.sb -side right -fill y
+    pack $cflist -side left -fill both -expand 1
+    $cflist tag configure highlight \
+        -background [$cflist cget -selectbackground]
+    $cflist tag configure bold -font mainfontbold
+}
+
 proc makewindow {} {
     global canv canv2 canv3 linespc charspc ctext cflist cscroll
     global tabstop
@@ -2741,35 +2780,9 @@ proc makewindow {} {
 
     .pwbottom add .bleft
 
-    # lower right
-    ttk::frame .bright
-    ttk::frame .bright.mode
-    ttk::radiobutton .bright.mode.patch -text [mc "Patch"] \
-        -command reselectline -variable cmitmode -value "patch"
-    ttk::radiobutton .bright.mode.tree -text [mc "Tree"] \
-        -command reselectline -variable cmitmode -value "tree"
-    grid .bright.mode.patch .bright.mode.tree -sticky ew
-    pack .bright.mode -side top -fill x
-    set cflist .bright.cfiles
-    set indent [font measure mainfont "nn"]
-    text $cflist \
-        -selectbackground $selectbgcolor \
-        -background $bgcolor -foreground $fgcolor \
-        -font mainfont \
-        -tabs [list $indent [expr {2 * $indent}]] \
-        -yscrollcommand ".bright.sb set" \
-        -cursor [. cget -cursor] \
-        -spacing1 1 -spacing3 1
-    lappend bglist $cflist
-    lappend fglist $cflist
-    ttk::scrollbar .bright.sb -command "$cflist yview"
-    pack .bright.sb -side right -fill y
-    pack $cflist -side left -fill both -expand 1
-    $cflist tag configure highlight \
-        -background [$cflist cget -selectbackground]
-    $cflist tag configure bold -font mainfontbold
+    create_file_list .file_list
 
-    .pwbottom add .bright
+    .pwbottom add .file_list
     .ctop add .pwbottom
 
     # restore window position if known
