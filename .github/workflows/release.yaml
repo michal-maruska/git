@@ -15,3 +15,6 @@ jobs:
     uses: michal-maruska/workflows/.github/workflows/build-and-publish-deb.yml@main
     with:
       apt_repo: michal-maruska/apt-repo
+    # git-core is a fork, so I need to store the token locally, and pass is explicitly:
+    secrets:
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
