@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'sid/*'
+      - 'unstable/*'
+
   workflow_dispatch:
 
 permissions:
